@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Public Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #2c3e50, #4ca1af);
+            margin: 0;
+            padding: 20px;
+            color: white;
+        }
+        .profile-container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            margin: 20px auto;
+            color: #333;
+        }
+        .profile-pic {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: block;
+            object-fit: cover;
+            border: 4px solid #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .profile-info {
+            margin-bottom: 15px;
+        }
+        .profile-info label {
+            font-weight: bold;
+            display: inline-block;
+            width: 120px;
+        }
+        .profile-info span {
+            display: inline-block;
+        }
+        .emergency-info {
+            margin-top: 30px;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+        .emergency-info h3 {
+            color: #e74c3c;
+        }
+        .emergency-button {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            display: block;
+            margin: 20px auto;
+            transition: background-color 0.3s;
+        }
+        .emergency-button:hover {
+            background-color: #c0392b;
+        }
+        .medical-info {
+            margin-top: 30px;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-container" id="profile-container">
+        <h1>Emergency Profile</h1>
+        <img class="profile-pic" id="profile-pic" src="default-profile-pic.png" alt="Profile Picture">
+        <h2 id="profile-name">Loading profile...</h2>
+        <p id="profile-message" style="text-align: center;">Getting profile information...</p>
+        
+        <div class="profile-info" id="profile-details" style="display: none;">
+            <div><label>Age:</label> <span id="profile-age">-</span></div>
+            <div><label>Gender:</label> <span id="profile-gender">-</span></div>
+            <div><label>Blood Type:</label> <span id="profile-blood">-</span></div>
+            
+            <div class="emergency-info">
+                <h3>Emergency Contact Information</h3>
+                <div><label>Emergency #:</label> <span id="profile-emergency">-</span></div>
+                <button class="emergency-button" id="call-emergency">Call Emergency Contact</button>
+            </div>
+            
+            <div class="medical-info">
+                <h3>Medical Information</h3>
+                <p id="profile-medical">No medical information available</p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="qrcode.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPublicProfile();
+            
+            // Setup emergency call button
+            const callButton = document.getElementById('call-emergency');
+            callButton.addEventListener('click', function() {
+                const emergencyNumber = document.getElementById('profile-emergency').textContent;
+                if (emergencyNumber && emergencyNumber !== '-') {
+                    window.location.href = `tel:${emergencyNumber}`;
+                } else {
+                    alert('No emergency number available');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

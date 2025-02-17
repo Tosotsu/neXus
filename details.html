@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Details Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #2c3e50, #4ca1af);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .details-container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 60px; /* Increased padding for a larger container */
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            width: 400px; /* Increased width for a larger container */
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h2 {
+            color: #34495e;
+            margin-bottom: 20px;
+        }
+        input[type="text"], input[type="number"], button {
+            width: 90%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus, input[type="number"]:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .input-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+        .input-container input {
+            width: 48%; /* Adjust width for side-by-side layout */
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 20px; /* Space between buttons and other elements */
+        }
+        .number-list {
+            width: 100%;
+            text-align: left;
+            margin-top: 20px;
+        }
+        .remove-button {
+            width: 30px; /* Set a smaller width for the remove button */
+            height: 20px; /* Set a smaller height for the remove button */
+            font-size: 14px; /* Adjust font size */
+            padding: 0; /* Remove padding */
+        }
+    </style>
+</head>
+<body>
+    <div class="details-container">
+        <h2>Add Emergency Number</h2>
+        <div class="input-container" id="input-container" style="display: none;">
+            <input type="text" id="name-input" placeholder="Enter name">
+            <input type="number" id="number-input" placeholder="Enter number">
+        </div>
+        <div id="action-buttons" style="display: none;">
+            <button id="save-number">Save</button>
+            <button id="cancel-number">Cancel</button>
+        </div>
+        <ul id="emergency-numbers" class="number-list"></ul>
+
+        <div class="button-container">
+        <button id="add-number" style="margin-top: 20px; display: block; margin-bottom: 20px;">Add</button>
+
+        </div>
+
+        <div class="button-container">
+            <button onclick="window.location.href='dashboard.html'" style="margin-top: 20px;">Back</button>
+            <button id="edit-number" style="margin-top: 20px;">Edit</button>
+        </div>
+
+        <script>
+            document.getElementById('add-number').onclick = function() {
+                document.getElementById('input-container').style.display = 'flex';
+                document.getElementById('action-buttons').style.display = 'block';
+                document.getElementById('add-number').style.display = 'none';
+            };
+
+            document.getElementById('save-number').onclick = function() {
+                const name = document.getElementById('name-input').value;
+                const number = document.getElementById('number-input').value;
+                if (name && number) {
+                    const li = document.createElement('li');
+                    li.style.display = 'flex';
+                    li.style.justifyContent = 'space-between';
+                    li.innerHTML = `<span>${name}</span>: <span>${number}</span>`;
+
+                    const removeButton = document.createElement('button');
+                    removeButton.textContent = '-';
+                    removeButton.className = 'remove-button';
+                    removeButton.style.marginLeft = '10px'; // Space between text and button
+                    removeButton.style.display = 'none'; // Hide by default
+                    removeButton.onclick = function() {
+                        document.getElementById('emergency-numbers').removeChild(li);
+                    };
+
+                    li.appendChild(removeButton);
+                    document.getElementById('emergency-numbers').appendChild(li);
+                    
+                    // Confirmation message
+                    alert('Saved successfully!');
+                }
+                clearInputs();
+            };
+
+            document.getElementById('edit-number').onclick = function() {
+                const removeButtons = document.querySelectorAll('.remove-button');
+                removeButtons.forEach(button => {
+                    button.style.display = 'inline'; // Show remove buttons when editing
+                });
+            };
+
+            document.getElementById('cancel-number').onclick = function() {
+                clearInputs();
+            };
+
+            function clearInputs() {
+                document.getElementById('input-container').style.display = 'none';
+                document.getElementById('action-buttons').style.display = 'none';
+                document.getElementById('name-input').value = '';
+                document.getElementById('number-input').value = '';
+                document.getElementById('add-number').style.display = 'block';
+            }
+        </script>
+    </div>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Share Profile</title>
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <style>
+        body {
+            background-color: #181818;
+            color: white;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .share-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #2c2c2c;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        .qr-section {
+            text-align: center;
+            margin: 40px 0;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            color: black;
+        }
+        #qrcode-container {
+            margin: 20px auto;
+            width: 200px;
+            height: 200px;
+        }
+        .button {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .button:hover {
+            background-color: #357abd;
+        }
+        #download-qr {
+            background-color: #27ae60;
+            display: none;
+        }
+        #download-qr:hover {
+            background-color: #219652;
+        }
+        .options {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .info-text {
+            margin: 20px;
+            line-height: 1.6;
+        }
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <div class="share-container">
+        <h1>Share Your Profile</h1>
+        <p class="info-text">
+            Generate a QR code that provides access to your emergency profile information.
+            When scanned, the QR code will show your essential medical and contact details
+            to first responders or anyone who needs to assist you in an emergency.
+        </p>
+        
+        <div class="qr-section">
+            <h2>Your Profile QR Code</h2>
+            <p>Scan this code to access your emergency profile information</p>
+            <div id="qrcode-container"></div>
+            <div class="options">
+                <a href="#" id="download-qr" class="button">Download QR Code</a>
+            </div>
+        </div>
+        
+        <div class="options">
+            <button onclick="generateProfileQR(generateUserId())" class="button">Generate QR Code</button>
+            <button onclick="window.location.href='dashboard.html'" class="button">Back to Dashboard</button>
+        </div>
+        
+        <div class="info-text">
+            <h3>Privacy Information</h3>
+            <p>
+                This QR code links to a page containing only the essential information needed
+                for emergency situations. Your data is stored locally on your device and is not
+                transmitted to any servers. Anyone who has access to this QR code will be able
+                to view your emergency information, so share responsibly.
+            </p>
+        </div>
+        
+        <footer>
+            &copy; 2025 NFC Emergency Profile System
+        </footer>
+    </div>
+    
+    <script src="qrcode.js"></script>
+    <script>
+        function generateUserId() {
+            // In a real app, this would be a real user ID from your authentication system
+            // For this example, we'll create a unique ID based on the user's name and timestamp
+            const name = localStorage.getItem('name') || 'user';
+            const timestamp = new Date().getTime();
+            const userId = name.toLowerCase().replace(/[^a-z0-9]/g, '') + '-' + timestamp;
+            
+            return userId;
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Generate QR code automatically when page loads
+            generateProfileQR(generateUserId());
+        });
+    </script>
+</body>
+</html>

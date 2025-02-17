@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Profile</title>
+    <style>
+        body {
+            background-color: #181818; /* Dark background */
+            color: white; /* White text */
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .profile-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #2c2c2c; /* Darker container background */
+            border-radius: 10px;
+        }
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .profile-pic {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 20px;
+        }
+        .profile-name {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .profile-info {
+            margin-bottom: 20px;
+        }
+        .profile-info h2 {
+            border-bottom: 1px solid #4a90e2;
+            padding-bottom: 5px;
+            color: #4a90e2;
+        }
+        .info-row {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .info-label {
+            font-weight: bold;
+            width: 150px;
+        }
+        .button {
+            background-color: #4a90e2; /* Button color */
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .qr-code-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+        }
+        .loading {
+            text-align: center;
+            font-size: 18px;
+            margin: 50px 0;
+        }
+        .error-message {
+            color: #ff5555;
+            text-align: center;
+            font-size: 18px;
+            margin: 50px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-container" id="profile-container">
+        <h1>Profile Information</h1>
+        <div id="loading" class="loading">Loading profile data...</div>
+        <div id="error" class="error-message"></div>
+        <div id="profile-content" style="display: none;">
+            <div class="profile-header">
+                <img id="profile-pic" class="profile-pic" src="default-profile-pic.png" alt="Profile Picture">
+                <div>
+                    <div id="profile-name" class="profile-name">User Name</div>
+                    <div id="profile-id">User ID: </div>
+                </div>
+            </div>
+            
+            <div class="profile-info">
+                <h2>Personal Information</h2>
+                <div class="info-row">
+                    <div class="info-label">Age:</div>
+                    <div id="profile-age">-</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Gender:</div>
+                    <div id="profile-gender">-</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Blood Type:</div>
+                    <div id="profile-blood-type">-</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Location:</div>
+                    <div id="profile-location">-</div>
+                </div>
+            </div>
+            
+            <div class="profile-info">
+                <h2>Contact Information</h2>
+                <div class="info-row">
+                    <div class="info-label">Phone Number:</div>
+                    <div id="profile-phone">-</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Email:</div>
+                    <div id="profile-email">-</div>
+                </div>
+            </div>
+            
+            <div class="profile-info">
+                <h2>Emergency Contacts</h2>
+                <div id="emergency-contacts-list">
+                    No emergency contacts found.
+                </div>
+            </div>
+            
+            <div class="qr-code-container">
+                <h2>Your Profile QR Code</h2>
+                <p>Scan this code to quickly share your medical information in case of emergency</p>
+                <img id="qr-code" class="qr-code" src="placeholder-qr.png" alt="QR Code">
+                <p>Note: Only essential medical information will be shared through this QR code.</p>
+            </div>
+            
+            <button class="button" onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
+            <button class="button" onclick="window.location.href='edit-profile.html'">Edit Profile</button>
+        </div>
+    </div>
+
+    <script>
+        // Check if token exists in localStorage
+        const token = localStorage.getItem('token');
+        
+        // Function to fetch profile data from server
+        async function fetchProfile() {
+            try {
+                // If no token is found, redirect to login
+                if (!token) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                // For development/demo purposes, use localStorage data
+                // In production, uncomment the fetch code below to get data from server
+                if (true) { // Change to false to use the API instead
+                    displayLocalStorageProfile();
+                    return;
+                }
+                
+                // Fetch profile data from API
+                const response = await fetch('/api/profile', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        // Unauthorized - token expired or invalid
+                        localStorage.removeItem('token');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    throw new Error(`Error: ${response.status}`);
+                }
+                
+                const profileData = await response.json();
+                displayProfile(profileData);
+                
+                // Fetch emergency contacts
+                const contactsResponse = await fetch('/api/emergency-contacts', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (contactsResponse.ok) {
+                    const contactsData = await contactsResponse.json();
+                    displayEmergencyContacts(contactsData);
+                }
+                
+                // Fetch QR code
+                const qrResponse = await fetch('/api/generate-qr', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (qrResponse.ok) {
+                    const qrData = await qrResponse.json();
+                    document.getElementById('qr-code').src = qrData.qrCode;
+                }
+                
+            } catch (error) {
+                console.error("Error fetching profile:", error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').textContent = 'Failed to load profile data. Please try again later.';
+                document.getElementById('error').style.display = 'block';
+            }
+        }
+        
+        // Function to display profile from localStorage (for development/demo)
+        function displayLocalStorageProfile() {
+            const profileData = {
+                name: localStorage.getItem('name') || 'User',
+                age: localStorage.getItem('age') || '-',
+                gender: localStorage.getItem('gender') || '-',
+                bloodType: localStorage.getItem('bloodType') || '-',
+                location: localStorage.getItem('location') || '-',
+                profilePic: localStorage.getItem('profilePic') || 'default-profile-pic.png',
+                phone: localStorage.getItem('phone') || '-',
+                email: localStorage.getItem('gmail') || '-'
+            };
+            
+            displayProfile(profileData);
+            
+            // Display emergency contacts if available
+            const emergencyNumber = localStorage.getItem('emergencyNumber');
+            if (emergencyNumber) {
+                const contactsData = [
+                    { name: 'Emergency Contact', number: emergencyNumber }
+                ];
+                displayEmergencyContacts(contactsData);
+            }
+            
+            // Generate a placeholder QR code (in production this would come from the server)
+            document.getElementById('qr-code').src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(`${profileData.name}, ${profileData.bloodType}, ${profileData.phone}`);
+            
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('profile-content').style.display = 'block';
+        }
+        
+        // Function to display profile data
+        function displayProfile(profileData) {
+            document.getElementById('profile-name').textContent = profileData.name;
+            document.getElementById('profile-id').textContent = `User ID: ${profileData._id || 'N/A'}`;
+            document.getElementById('profile-age').textContent = profileData.age;
+            document.getElementById('profile-gender').textContent = profileData.gender;
+            document.getElementById('profile-blood-type').textContent = profileData.bloodType;
+            document.getElementById('profile-location').textContent = profileData.location;
+            document.getElementById('profile-phone').textContent = profileData.phone;
+            document.getElementById('profile-email').textContent = profileData.email;
+            
+            // Set profile picture if available
+            if (profileData.profilePic) {
+                document.getElementById('profile-pic').src = profileData.profilePic.startsWith('http') 
+                    ? profileData.profilePic 
+                    : profileData.profilePic;
+            }
+            
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('profile-content').style.display = 'block';
+        }
+        
+        // Function to display emergency contacts
+        function displayEmergencyContacts(contacts) {
+            if (!contacts || contacts.length === 0) {
+                return;
+            }
+            
+            const contactsList = document.getElementById('emergency-contacts-list');
+            contactsList.innerHTML = '';
+            
+            contacts.forEach(contact => {
+                const contactDiv = document.createElement('div');
+                contactDiv.className = 'info-row';
+                contactDiv.innerHTML = `
+                    <div class="info-label">${contact.name || 'Contact'}:</div>
+                    <div>${contact.number}</div>
+                `;
+                contactsList.appendChild(contactDiv);
+            });
+        }
+        
+        // Load profile when page loads
+        window.onload = fetchProfile;
+    </script>
+</body>
+</html>

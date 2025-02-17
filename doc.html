@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uploaded Files</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #2c3e50, #4ca1af);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .files-container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 60px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            width: 400px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h2 {
+            color: #34495e;
+            margin-bottom: 20px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 10px 0;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .file-list {
+            width: 100%;
+            text-align: left;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="files-container">
+        <h2>Uploaded Files</h2>
+        <ul id="file-list" class="file-list">
+            <!-- Uploaded files will be displayed here -->
+        </ul>
+<button id="add-file" onclick="addFile()">Add File</button>
+
+        <button onclick="window.location.href='dashboard.html'">Back</button>
+<button id="edit-file" onclick="editFile()">Edit</button>
+
+    </div>
+
+    <script>
+        function addFile() {
+            // Functionality to add a new file
+            const fileName = prompt("Enter the name of the file:");
+            if (fileName) {
+                const li = document.createElement('li');
+                li.textContent = fileName;
+                document.getElementById('file-list').appendChild(li);
+                alert('File added successfully!');
+            }
+        }
+
+
+        function editFile() {
+            const listItems = document.querySelectorAll('#file-list li');
+            listItems.forEach((li, index) => {
+                li.onclick = function() {
+                    const newFileName = prompt("Edit the name of the file:", li.textContent);
+                    if (newFileName) {
+                        li.textContent = newFileName;
+                        alert('File name updated successfully!');
+                    }
+                };
+            });
+        }
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Reports</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+    <script src="firebase-config.js"></script>
+    <style>
+        body {
+            background-color: #181818;
+            color: white;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #2c2c2c;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .file-upload {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #3c3c3c;
+            border-radius: 10px;
+        }
+        .file-list {
+            margin: 30px 0;
+        }
+        .file-item {
+            padding: 15px;
+            margin: 10px 0;
+            background-color: #3c3c3c;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .file-name {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+        .file-date {
+            color: #aaa;
+            font-size: 0.9em;
+            margin-right: 20px;
+        }
+        .file-button {
+            margin-left: 10px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .file-download {
+            background-color: #4a90e2;
+            color: white;
+        }
+        .file-delete {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .button {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        .upload-progress {
+            height: 5px;
+            width: 100%;
+            background-color: #555;
+            margin-top: 10px;
+            border-radius: 3px;
+            overflow: hidden;
+            display: none;
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #4a90e2;
+            transition: width 0.2s;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #aaa;
+        }
+        .notification {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            text-align: center;
+            display: none;
+        }
+        .success {
+            background-color: #27ae60;
+            color: white;
+        }
+        .error {
+            background-color: #e74c3c;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Medical Reports</h1>
+        
+        <div class="file-upload">
+            <h3>Upload New Medical Report</h3>
+            <input type="file" id="file-input" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+            <button class="button" id="upload-button">Upload</button>
+            <div class="upload-progress" id="upload-progress">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+        </div>
+        
+        <div class="notification success" id="success-notification">File uploaded successfully!</div>
+        <div class="notification error" id="error-notification">Error uploading file. Please try again.</div>
+        
+        <div class="file-list" id="file-list">
+            <h3>Your Medical Reports</h3>
+            <div id="files-container">
+                <div class="empty-state" id="empty-state">
+                    No medical reports uploaded yet.
+                </div>
+            </div>
+        </div>
+        
+        <button class="button" onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
+    </div>
+    
+    <script>
+        let currentUserId = localStorage.getItem('userId');
+        
+        // If no userId exists yet, create one
+        if (!currentUserId) {
+            currentUserId = 'user_' + new Date().getTime();
+            localStorage.setItem('userId', currentUserId);
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserFiles();
+            
+            const uploadButton = document.getElementById('upload-button');
+            const fileInput = document.getElementById('file-input');
+            
+            uploadButton.addEventListener('click', async function() {
+                const file = fileInput.files[0];
+                if (!file) {
+                    showNotification('error', 'Please select a file to upload');
+                    return;
+                }
+                
+                try {
+                    // Show progress container
+                    document.getElementById('upload-progress').style.display = 'block';
+                    
+                    // Create a storage reference
+                    const storageRef = storage.ref();
+                    const fileRef = storageRef.child(`${currentUserId}/medical/${file.name}`);
+                    
+                    // Upload file with progress monitoring
+                    const uploadTask = fileRef.put(file);
+                    
+                    uploadTask.on('state_changed', 
+                        (snapshot) => {
+                            // Update progress bar
+                            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                            document.getElementById('progress-bar').style.width = progress + '%';
+                        },
+                        (error) => {
+                            // Handle unsuccessful uploads
+                            document.getElementById('upload-progress').style.display = 'none';
+                            showNotification('error', 'Error uploading file: ' + error.message);
+                        },
+                        async () => {
+                            // Handle successful uploads
+                            const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+                            
+                            // Save metadata in Firestore
+                            await firestore.collection('files').add({
+                                userId: currentUserId,
+                                category: 'medical',
+                                filename: file.name,
+                                downloadURL: downloadURL,
+                                uploadDate: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+                            
+                            document.getElementById('upload-progress').style.display = 'none';
+                            showNotification('success', 'File uploaded successfully!');
+                            fileInput.value = '';
+                            
+                            // Reload the file list
+                            loadUserFiles();
+                        }
+                    );
+                } catch (error) {
+                    document.getElementById('upload-progress').style.display = 'none';
+                    showNotification('error', 'Error uploading file: ' + error.message);
+                }
+            });
+        });
+        
+        async function loadUserFiles() {
+            try {
+                const filesContainer = document.getElementById('files-container');
+                const emptyState = document.getElementById('empty-state');
+                
+                // Get files from Firestore
+                const filesSnapshot = await firestore.collection('files')
+                    .where('userId', '==', currentUserId)
+                    .where('category', '==', 'medical')
+                    .orderBy('uploadDate', 'desc')
+                    .get();
+                
+                if (filesSnapshot.empty) {
+                    filesContainer.innerHTML = '';
+                    filesContainer.appendChild(emptyState);
+                    emptyState.style.display = 'block';
+                    return;
+                }
+                
+                // Hide empty state and prepare container
+                emptyState.style.display = 'none';
+                filesContainer.innerHTML = '';
+                
+                // Add file items
+                filesSnapshot.forEach(doc => {
+                    const fileData = doc.data();
+                    const fileDate = fileData.uploadDate ? new Date(fileData.uploadDate.toDate()).toLocaleString() : 'Unknown date';
+                    
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item';
+                    fileItem.innerHTML = `
+                        <div class="file-name">${fileData.filename}</div>
+                        <div class="file-date">${fileDate}</div>
+                        <button class="file-button file-download" onclick="window.open('${fileData.downloadURL}', '_blank')">Download</button>
+                        <button class="file-button file-delete" data-id="${doc.id}">Delete</button>
+                    `;
+                    
+                    filesContainer.appendChild(fileItem);
+                });
+                
+                // Add event listeners for delete buttons
+                document.querySelectorAll('.file-delete').forEach(button => {
+                    button.addEventListener('click', async function() {
+                        if (confirm('Are you sure you want to delete this file?')) {
+                            const fileId = this.getAttribute('data-id');
+                            await deleteFile(fileId);
+                        }
+                    });
+                });
+                
+            } catch (error) {
+                console.error("Error loading files:", error);
+                showNotification('error', 'Error loading files: ' + error.message);
+            }
+        }
+        
+        async function deleteFile(fileId) {
+            try {
+                // Get the file document
+                const fileDoc = await firestore.collection('files').doc(fileId).get();
+                
+                if (!fileDoc.exists) {
+                    throw new Error("File not found");
+                }
+                
+                const fileData = fileDoc.data();
+                
+                if (fileData.userId !== currentUserId) {
+                    throw new Error("Unauthorized to delete this file");
+                }
+                
+                // Delete from Storage
+                const fileRef = storage.refFromURL(fileData.downloadURL);
+                await fileRef.delete();
+                
+                // Delete from Firestore
+                await firestore.collection('files').doc(fileId).delete();
+                
+                showNotification('success', 'File deleted successfully');
+                loadUserFiles();
+            } catch (error) {
+                console.error("Error deleting file:", error);
+                showNotification('error', 'Error deleting file: ' + error.message);
+            }
+        }
+        
+        function showNotification(type, message) {
+            const notification = document.getElementById(type + '-notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

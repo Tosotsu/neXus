@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .admin-header {
+            background-color: #34495e;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        .logout-button {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .logout-button:hover {
+            background-color: #c0392b;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .admin-menu {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+        }
+        .admin-menu a {
+            text-decoration: none;
+            color: #34495e;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .admin-menu a:hover {
+            background-color: #ecf0f1;
+        }
+        .admin-content {
+            padding: 20px;
+        }
+        .admin-section {
+            margin-bottom: 30px;
+        }
+        .admin-section h3 {
+            color: #34495e;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <h1>Admin Dashboard</h1>
+        <button class="logout-button" onclick="window.location.href='login.html'">Log Out</button>
+    </div>
+
+    <div class="admin-container">
+        <div class="admin-menu">
+            <a href="#">User Management</a>
+            <a href="#">Settings</a>
+            <a href="#">Reports</a>
+            <a href="#">Logs</a>
+        </div>
+        <div class="admin-content">
+            <div class="admin-section">
+                <h3>Welcome, Admin</h3>
+                <p>You have full access to manage the system.</p>
+            </div>
+            <div class="admin-section">
+                <h3>Quick Actions</h3>
+                <button>Add New User</button>
+                <button>Generate Report</button>
+                <button>View System Logs</button>
+                <button onclick="window.location.href='edit-app.html'">Edit App</button>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

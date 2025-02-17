@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Dashboard</title>
+    <link href="path/to/local/tailwind.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: white; /* Reverted background color */
+            color: black; /* Reverted text color */
+        }
+        .button {
+            background-color: #007bff; /* Reverted button color */
+            
+        }
+    </style>
+
+
+    <style>
+        body {
+            background-color: #181818; /* Dark background */
+            color: white; /* White text */
+        }
+        .profile-header {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+        }
+        .profile-header h1 {
+            margin: 0;
+            margin-left: 20px; /* Gap between image and name */
+        }
+        .button {
+            background-color: #4a90e2; /* Button color */
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 5px; /* Space above buttons */
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            padding: 20px;
+        }
+        .grid-item {
+            background-color: #2c2c2c; /* Darker item background */
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+    </style>
+    <script>
+        function loadName() {
+            const name = localStorage.getItem('name') || 'User';
+            document.getElementById('username').textContent = name;
+        }
+
+        window.onload = loadName;
+    </script>
+</head>
+<body>
+    <div class="profile-header">
+        <img id="profile-pic" class="profile-pic" src="https://via.placeholder.com/150" alt="Profile Picture">
+        <h1 id="username">User</h1> <!-- Restored default username display -->
+
+
+
+
+
+    </div>
+    <div style="position: relative; margin-top: 40px;">
+        <button class="button" onclick="window.location.href='login.html'" style="position: absolute; right: 0; top: -40px; padding: 5px 10px; font-size: 14px;">Log Out</button>
+
+        <h2><marquee bgcolor=2c2c2c behaviour="alternate" direction="left" loop="20"> welcome to NFC </marquee></h2>
+
+
+    <div>
+        <button class="button" onclick="window.location.href='edit-profile.html'">Edit Profile</button>
+        <button class="button" onclick="window.location.href='view-profile.html'">View Profile</button>
+    </div>
+    <div style="text-align: center; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);">
+        <button class="w-20 h-20 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg transition-transform btn-hover" style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="white" class="w-10 h-10">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9l9-6 9 6v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 22V12h6v10" />
+            </svg>
+        </button>
+    </div>
+
+    <div class="grid">
+
+
+        <div class="grid-item" onclick="window.location.href='doc.html'" style="cursor: pointer;">Documents</div>
+        <div class="grid-item" onclick="window.location.href='details.html'" style="cursor: pointer;">Emergency Numbers</div>
+        <div class="grid-item" onclick="window.location.href='share.html'" style="cursor: pointer;">Share Data</div>
+        <div class="grid-item" onclick="window.location.href='medical_reports.html'" style="cursor: pointer;">Medical Reports</div>
+        <div class="grid-item">Distress Signal</div>
+
+    </div>
+
+    <!-- Removed home button next to View Profile -->
+
+</body>
+</html>
